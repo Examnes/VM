@@ -2,34 +2,59 @@
 #include <stdexcept>
 #include <vector>
 #include <fstream>
-#include <stdlib.h>
+#include <string>
 #include <iostream>
 
 word &memory::operator[](size_t idx)
 {
-    if (idx <= 65536)
+    if (idx < size)
         return arr[idx];
-    return arr[65535];
+    return arr[size - 1];
 }
 
 memory::memory(std::string filename)
 {
     std::ifstream file(filename);
     std::string line;
-    size_t i = 0;
+    std::vector<word> temp;
     while (std::getline(file, line, ','))
     {
-        arr[i++] = atol(line.c_str());
+        temp.push_back( std::stol(line.c_str()) );
     }
+    size = temp.size() + 1;
+    arr = new word[size];
+    std::copy(temp.begin(),temp.end(),arr);
+}
+
+memory::memory(memory&& other)
+{
+    std::swap(size,other.size);
+    std::swap(arr,other.arr);
+}
+
+memory& memory::operator=(memory&& other)
+{
+    std::swap(size,other.size);
+    std::swap(arr,other.arr);
+    return *this;
 }
 
 memory::memory(const memory& other)
 {
-    std::copy(other.arr,other.arr + 65536,arr);
+    arr = new word[other.size];
+    std::copy(other.arr,other.arr + other.size,arr);
+    size = other.size;
 }
 
 memory& memory::operator=(const memory& other)
 {
-    std::copy(other.arr,other.arr + 65536,arr);
+    arr = new word[other.size];
+    std::copy(other.arr,other.arr + other.size,arr);
+    size = other.size;
     return *this;
+}
+
+memory::~memory()
+{
+    delete[] arr;
 }

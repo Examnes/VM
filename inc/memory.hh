@@ -8,13 +8,17 @@
 class memory
 {
 private:
-    word arr[65536] = {0};
+    word* arr;
+    size_t size;
 public:
     word &operator[](size_t idx);
     memory(std::string filename);
-    memory(const memory& other);
+    memory(memory&& other);
+    memory(const memory&  other);
+    memory& operator=(memory&& other);
     memory& operator=(const memory& other);
     memory() = default;
+    ~memory();
 };
 
 #endif // MEMORY_HH

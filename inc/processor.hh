@@ -11,7 +11,7 @@ class processor
 private:
     memory m;
     psw state;
-    command *cmd[44];
+    command *cmd[46];
     void process();
     void initalize_commands();
 
