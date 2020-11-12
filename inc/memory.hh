@@ -8,26 +8,13 @@
 class memory
 {
 private:
-    word *arr;
-    size_t size;
-    bool out_of_bounds;
-
+    word arr[65536] = {0};
 public:
     word &operator[](size_t idx);
-    memory &operator=(memory &&other)
-    {
-        std::swap(arr, other.arr);
-        std::swap(size, other.size);
-        std::swap(out_of_bounds, other.out_of_bounds);
-        return *this;
-    }
-    memory(std::string filename, size_t offset);
+    memory(std::string filename);
+    memory(const memory& other);
+    memory& operator=(const memory& other);
     memory() = default;
-    bool is_out_of_bounds()
-    {
-        return out_of_bounds;
-    }
-    ~memory();
 };
 
 #endif // MEMORY_HH

@@ -1,83 +1,90 @@
 #include "processor.hh"
-#include "command.hh"
 
-processor::processor(memory &m) : m(m)
+processor::processor(memory m)
 {
     state.IP = 0;
     state.FLAGS = 0;
+    this->m = m;
+    initalize_commands();
 }
 
 void processor::initalize_commands()
 {
-    cmd[0] = new mov();
+    cmd[cmov] = new mov();
 
-    cmd[1] = new add();
-    cmd[2] = new sub();
-    cmd[3] = new _div();
-    cmd[4] = new mul();
+    cmd[cadd] = new add();
+    cmd[csub] = new sub();
+    cmd[cdiv] = new _div();
+    cmd[cmul] = new mul();
 
-    cmd[5] = new fadd();
-    cmd[6] = new fsub();
-    cmd[7] = new fdiv();
-    cmd[8] = new fmul();
+    cmd[cfadd] = new fadd();
+    cmd[cfsub] = new fsub();
+    cmd[cfdiv] = new fdiv();
+    cmd[cfmul] = new fmul();
 
-    cmd[9] = new jmpd();
-    cmd[10] = new jmpr();
-    cmd[11] = new jmpi();
+    cmd[cjmpd] = new jmpd();
+    cmd[cjmpr] = new jmpr();
+    cmd[cjmpi] = new jmpi();
 
     //ад дальше
-    cmd[12] = new jad();
-    cmd[13] = new jar();
-    cmd[14] = new jai();
+    cmd[cjad] = new jad();
+    cmd[cjar] = new jar();
+    cmd[cjai] = new jai();
 
-    cmd[15] = new jaed();
-    cmd[16] = new jaer();
-    cmd[17] = new jaei();
+    cmd[cjaed] = new jaed();
+    cmd[cjaer] = new jaer();
+    cmd[cjaei] = new jaei();
 
-    cmd[18] = new jbd();
-    cmd[19] = new jbr();
-    cmd[20] = new jbi();
+    cmd[cjbd] = new jbd();
+    cmd[cjbr] = new jbr();
+    cmd[cjbi] = new jbi();
 
-    cmd[21] = new jbed();
-    cmd[22] = new jber();
-    cmd[23] = new jbei();
+    cmd[cjbed] = new jbed();
+    cmd[cjber] = new jber();
+    cmd[cjbei] = new jbei();
 
-    cmd[24] = new jed();
-    cmd[25] = new jer();
-    cmd[26] = new jei();
+    cmd[cjed] = new jed();
+    cmd[cjer] = new jer();
+    cmd[cjei] = new jei();
 
-    cmd[27] = new jgd();
-    cmd[28] = new jgr();
-    cmd[29] = new jgi();
+    cmd[cjgd] = new jgd();
+    cmd[cjgr] = new jgr();
+    cmd[cjgi] = new jgi();
 
-    cmd[30] = new jged();
-    cmd[31] = new jger();
-    cmd[32] = new jgei();
+    cmd[cjged] = new jged();
+    cmd[cjger] = new jger();
+    cmd[cjgei] = new jgei();
 
-    cmd[33] = new jld();
-    cmd[34] = new jlr();
-    cmd[35] = new jli();
+    cmd[cjld] = new jld();
+    cmd[cjlr] = new jlr();
+    cmd[cjli] = new jli();
 
-    cmd[36] = new jled();
-    cmd[37] = new jler();
-    cmd[38] = new jlei();
+    cmd[cjled] = new jled();
+    cmd[cjler] = new jler();
+    cmd[cjlei] = new jlei();
 
-    cmd[39] = new call();
-    cmd[40] = new ret();
-    cmd[41] = new cmp();
+    cmd[ccall] = new call();
+    cmd[cret] = new ret();
+    cmd[ccmp] = new cmp();
+
+    cmd[c_in] = new in();
+    cmd[c_out] = new out();
+    cmd[c_movd] = new movd();
+    cmd[chalt] = new halt();
 }
 
 void processor::process()
 {
     word op = command::get_opcode(m[state.IP]);
-    cmd[op]->init(m[state.IP], m[state.IP + 1]);
-    (*cmd[op])(state,m);
+    command *curcommand = cmd[op];
+    curcommand->init(m[state.IP], m[state.IP + 1]);
+    curcommand->execute(state, m);
 }
 
 void processor::run(dword start_address)
 {
     state.IP = start_address;
-    while (!m.is_out_of_bounds())
+    while (!state.stop)
     {
         process();
     }

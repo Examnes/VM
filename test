@@ -1,0 +1,13 @@
+dd int 70
+dd int 20
+dd int 120
+movd mr eax 0
+movd mr ebx 2
+add ecx eax ebx
+movd mr edx 4
+cmp ecx edx
+jlr 4
+out eax
+jmpr 2
+out ebx
+mov mr eax 0

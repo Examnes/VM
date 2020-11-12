@@ -16,10 +16,16 @@ struct psw
     };
     union
     {
-        dword integer[8];
+        dword integer[8] = {0,0,0,0,0,0,0,0};
+        struct
+        {
+            word low;
+            word up;
+        } splited[8];
         int32_t signed_integer[8];
         float floating[8];
     } reg;
+    bool stop = false;
 };
 
 #endif // PSW_HH

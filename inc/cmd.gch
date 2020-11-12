@@ -1,0 +1,63 @@
+#if !defined(CMD_PCH)
+#define CMD_PCH
+
+#include "command/base_command.hh"
+#include "command/control.hh"
+#include "command/float_math.hh"
+#include "command/io.hh"
+#include "command/jump.hh"
+#include "command/math.hh"
+#include "command/mov.hh"
+
+enum commands
+{
+    cmov,
+    cadd,
+    csub,
+    cmul,
+    cdiv,
+    cfadd,
+    cfsub,
+    cfdiv,
+    cfmul,
+    cjmpd,
+    cjmpr,
+    cjmpi,
+    cjad,
+    cjar,
+    cjai,
+    cjaed,
+    cjaer,
+    cjaei,
+    cjbd,
+    cjbr,
+    cjbi,
+    cjbed,
+    cjber,
+    cjbei,
+    cjed,
+    cjer,
+    cjei,
+    cjgd,
+    cjgr,
+    cjgi,
+    cjged,
+    cjger,
+    cjgei,
+    cjld,
+    cjlr,
+    cjli,
+    cjled,
+    cjler,
+    cjlei,
+    ccall,
+    cret,
+    ccmp,
+    c_in,
+    c_out,
+    c_movd,
+    chalt
+};
+
+
+#endif // CMD_PCH

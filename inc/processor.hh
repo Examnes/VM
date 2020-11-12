@@ -1,21 +1,22 @@
 #if !defined(PROCESSOR_HH)
 #define PROCESSOR_HH
 
+#include "cmd.gch"
 #include "word.hh"
 #include "memory.hh"
-#include "command.hh"
 #include "psw.hh"
 
 class processor
 {
 private:
-    memory& m;
+    memory m;
     psw state;
-    command* cmd[42];
+    command *cmd[44];
     void process();
     void initalize_commands();
+
 public:
-    processor(memory& m);
+    processor(memory m);
     void run(dword start_address);
 };
 
