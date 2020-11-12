@@ -9,8 +9,11 @@
 
 typedef uint64_t result_type;
 
+//получить бит знака - он последний
 #define SIGN_BIT(x) (x >> (sizeof(x) * 8 - 1))
 
+//добавить base к классу, чтобы работали базовые классы при наследовании
+//у MS есть __super но он не стандартный да и работает только у них
 #define DEF_AS_BASE(x) typedef x base
 
 class command
@@ -25,11 +28,14 @@ protected:
             word r1 : 3;
             word op : 7;
             word constant;
-        } op;
+        } op; 
+        //такой порядок у операндов, потому что little edian
         word parts[2];
+        //COP можно инициализировать двумя словами
     } operation;
     void set_flags(psw &state, result_type res)
     {
+        //cf ставится если результат вышел за пределы размера слова
         if (res > std::numeric_limits<dword>::max())
         {
             state.FLAGS |= psw::flag_bits::cf;
@@ -38,6 +44,7 @@ protected:
         {
             state.FLAGS &= ~psw::flag_bits::cf;
         }
+        //of ставится если у результата бит знака не совпадает со знаками операндов
         bool op1sign = SIGN_BIT(state.reg.integer[operation.op.r2]);
         bool op2sign = SIGN_BIT(state.reg.integer[operation.op.r3]);
         bool ressign = SIGN_BIT(state.reg.integer[operation.op.r1]);
@@ -50,7 +57,7 @@ protected:
         {
             state.FLAGS &= ~psw::flag_bits::of;
         }
-
+        //флаг sf равен знаку результата
         if (ressign)
         {
             state.FLAGS |= psw::flag_bits::sf;
@@ -60,6 +67,7 @@ protected:
             state.FLAGS &= ~psw::flag_bits::sf;
         }
 
+        //zf ставится если результат нулевой
         if (res == 0)
         {
             state.FLAGS |= psw::flag_bits::zf;
@@ -85,7 +93,7 @@ public:
     {
 
     };
-
+    //функция должна быть реализована у всех наследников
     virtual void execute(psw &state, memory &m) = 0;
 };
 

@@ -8,6 +8,11 @@ processor::processor(memory m)
     initalize_commands();
 }
 
+/*инициализация команд,
+как нибудь бы это сократить,
+желательно чтобы размер масива был равен количеству команд,
+а то когда записываеш не туда,
+программа не подавая вида крашится*/
 void processor::initalize_commands()
 {
     cmd[cmov] = new mov();
@@ -75,15 +80,23 @@ void processor::initalize_commands()
 
 void processor::process()
 {
+    //опкод получется если сдвинуть команду на 9 бит
+    //то есть получить верхние 7 бит
     word op = command::get_opcode(m[state.IP]);
     command *curcommand = cmd[op];
+    //каждый раз когда мы считываем команды нужно обновить байты
+    //команды, под данным опкодом, это конструктор.
     curcommand->init(m[state.IP], m[state.IP + 1]);
+    //мы передаем в команду состояние процессора и памяти
+    //могли бы мы передать туда сам процессор, но это не очень хорошо
+    //потому что тогда будут циклические зависимости
     curcommand->execute(state, m);
 }
 
 void processor::run(dword start_address)
 {
     state.IP = start_address;
+    //возможно, это стоит сделать флагом, чтобы правильно было
     while (!state.stop)
     {
         process();

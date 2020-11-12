@@ -3,6 +3,8 @@
 
 #include "base_command.hh"
 
+//все арифметические операции над числами с плавающей точкой аналогичны операциям с обычными числами
+//только используется другое представление регистров floating
 class fadd : public command
 {
 public:
@@ -10,6 +12,9 @@ public:
     {
         state.reg.floating[operation.op.r1] = state.reg.floating[operation.op.r2] + state.reg.floating[operation.op.r3];
         state.IP++;
+        //флаги не ставятся, но обычно проверить что одно число больше или меньше другого можно 
+        //так же как с обычными числами
+        //потому что float сделан так, что если a > b то и float(a) > float(b);
     }
 };
 

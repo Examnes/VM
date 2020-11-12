@@ -11,22 +11,25 @@ private:
         yes = 1,
         no = 3
     };
-
+    //r2 определяет будет ли использоваться базовый регистр или нет
 public:
     virtual void execute(psw &state, memory &m)
     {
         switch (operation.op.r2)
         {
-        case based::yes:
+        case based::no:
             state.IP = operation.op.constant;
             break;
-        case based::no:
+        //если да, то этим регистром будет r3
+        case based::yes:
             state.IP = operation.op.constant + state.reg.integer[operation.op.r3];
             break;
         default:
             break;
         }
     }
+    //чтобы при наследовании можно было писать base:: и операции базового класса
+    //и не запоминать его название.
     DEF_AS_BASE(jmpd);
 };
 
@@ -35,11 +38,14 @@ class jmpr : public command
 public:
     virtual void execute(psw &state, memory &m)
     {
+        //чтобы пригнуть относительно нужно трактовать r1 r2 r3 \
+        //как одно знаковое число длиной 1 байт
         state.IP += (int8_t)(operation.parts[0] & 0xFF);
     }
     DEF_AS_BASE(jmpr);
 };
 
+//прыжок по адресу, который лежит в регистре r1
 class jmpi : public command
 {
 public:
@@ -50,6 +56,7 @@ public:
     DEF_AS_BASE(jmpi);
 };
 
+//кажется так нельзя делать, но так проще
 #define DEF_ALL_JMP_USING_PRED(pred, jumpname)          \
     class jumpname##d : public jmpd                     \
     {                                                   \
@@ -99,6 +106,8 @@ public:
         }                                               \
     };
 
+//так можно одной строчкой обявить условный прыжок, который проверяет
+//нужные флаги, и сразу будут обьявлены все возможные прыжки.
 DEF_ALL_JMP_USING_PRED(!cf and !zf, ja);
 DEF_ALL_JMP_USING_PRED(!cf, jae);
 DEF_ALL_JMP_USING_PRED(cf, jb);

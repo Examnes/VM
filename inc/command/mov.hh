@@ -2,7 +2,7 @@
 #define MOV_HH
 
 #include "base_command.hh"
-
+//это аналог rm 
 enum dir : word
 {
     rr = 0,
@@ -19,9 +19,13 @@ class mov : public command
 public:
     void execute(psw &state, memory &m) override
     {
+        //все мувы занимают два слова кроме мува из регистра в регистр
         bool extended = true;
         switch (operation.op.r2)
         {
+        //если есть буква b то будет использоваться базовый адрес
+        //первая буква это откуда пересыдка
+        //вторая это куда
         case dir::rr:
             state.reg.integer[operation.op.r1] = state.reg.integer[operation.op.r3];
             extended = false;
@@ -38,6 +42,7 @@ public:
         case dir::rbm:
             m[state.reg.integer[operation.op.r3] + operation.op.constant] = state.reg.integer[operation.op.r1];
             break;
+        //загрузка адреса в регистр или относительного адреса
         case dir::la:
             state.reg.integer[operation.op.r1] = operation.op.constant;
             break;
@@ -59,6 +64,7 @@ public:
     }
 };
 
+//а это мув сразу двух слов, потому что регистры занимают 2 слова
 class movd : public command
 {
 public:
