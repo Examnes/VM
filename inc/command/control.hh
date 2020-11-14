@@ -5,51 +5,51 @@
 #include "math.hh"
 #include "jump.hh"
 
-//call это прямой прыжок, только перед прыжком сохраняется адрес возврата
-class call : public jmpd
+namespace CMD
 {
-public:
-    virtual void execute(psw &state, memory &m)
+    class call : public jmpd
     {
-        state.reg.integer[operation.op.r1] = state.IP + 1;
-        base::execute(state, m);
-    }
-};
-//потом этот адрес возврата нужно использовать в команде ret
-class ret : public command
-{
-public:
-    virtual void execute(psw &state, memory &m)
+    public:
+        virtual void execute(psw &state, registers &reg, memory &m)
+        {
+            reg.integer[operation.op.r1] = state.IP + 1;
+            base::execute(state, reg, m);
+        }
+    };
+    //потом этот адрес возврата нужно использовать в команде ret
+    class ret : public changing_ip_command
     {
-        state.IP = state.reg.integer[operation.op.r1];
-    }
-};
-//cmp делает то же самое что и вычитание, только не сохраняет рпезультат, только флаги ставит.
-class cmp : public sub
-{
-public:
-    virtual void execute(psw &state, memory &m)
+    public:
+        virtual void execute(psw &state, registers &reg, memory &m)
+        {
+            state.IP = reg.integer[operation.op.r1];
+        }
+    };
+    //cmp делает то же самое что и вычитание, только не сохраняет рпезультат, только флаги ставит.
+    class cmp : public sub
     {
-        //так как sub все таки сохраняет результат,
-        //желательно чтобы он всегда сохранялся в одно место.
-        operation.op.r1 = 0b010;
-        dword temp = state.reg.integer[operation.op.r1];
-        sub::execute(state, m);
-        //но после выполненния нужно вернуть назад прошлое значение этого регистра
-        state.reg.integer[operation.op.r1] = temp;
-        state.IP++;
-    }
-};
-//эта команда должна быть в конце программы, она устанавливает флаг остановки
-//когда он будет установлен интерпретация закончится.
-class halt : public command
-{
-public:
-    virtual void execute(psw &state, memory &m)
+    public:
+        virtual void execute(psw &state, registers &reg, memory &m)
+        {
+            //так как sub все таки сохраняет результат,
+            //желательно чтобы он всегда сохранялся в одно место.
+            operation.op.r1 = 0b010;
+            dword temp = reg.integer[operation.op.r1];
+            sub::execute(state, reg, m);
+            //но после выполненния нужно вернуть назад прошлое значение этого регистра
+            reg.integer[operation.op.r1] = temp;
+        }
+    };
+    //эта команда должна быть в конце программы, она устанавливает флаг остановки
+    //когда он будет установлен интерпретация закончится.
+    class halt : public common_command
     {
-        state.stop = true;
-        state.IP++;
-    }
-};
+    public:
+        virtual void execute(psw &state, registers &reg, memory &m)
+        {
+            state.FLAGS.stop = true;
+        }
+    };
+} // namespace CMD
 
 #endif // COMPARASION_HH

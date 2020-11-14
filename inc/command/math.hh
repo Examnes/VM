@@ -1,55 +1,54 @@
 #if !defined(MATH_HH)
 #define MATH_HH
-#include "base_command.hh"
+#include "math_base.hh"
 
-class add : public command
+namespace CMD
 {
-public:
-    void execute(psw &state, memory &m)
+    class add : public arithmetic_command
     {
-        //чтобы нормально ставить флаги нужно чтобы в результат поместился результат даже с переполнением.
-        result_type res = (result_type)state.reg.integer[operation.op.r2] + state.reg.integer[operation.op.r3];
-        state.reg.integer[operation.op.r1] = res;
-        set_flags(state, res);
-        state.IP++;
-    }
-};
+    public:
+        void execute(psw &state, registers &reg, memory &m)
+        {
+            //чтобы нормально ставить флаги нужно чтобы в результат поместился результат даже с переполнением.
+            result_type res = (result_type)reg.integer[operation.op.r2] + reg.integer[operation.op.r3];
+            reg.integer[operation.op.r1] = res;
+            set_all_flags(reg, state, res);
+        }
+    };
 
-class sub : public command
-{
-public:
-    virtual void execute(psw &state, memory &m)
+    class sub : public arithmetic_command
     {
-        //вычитание это сложение с инверсией, но это будет работать аналогично.
-        result_type res = (result_type)state.reg.signed_integer[operation.op.r2] - state.reg.signed_integer[operation.op.r3];
-        state.reg.integer[operation.op.r1] = res;
-        set_flags(state, res);
-    }
-};
+    public:
+        virtual void execute(psw &state, registers &reg, memory &m)
+        {
+            result_type res = (result_type)reg.signed_integer[operation.op.r2] - reg.signed_integer[operation.op.r3];
+            reg.integer[operation.op.r1] = res;
+            set_all_flags(reg, state, res);
+        }
+    };
 
-class mul : public command
-{
-public:
-    void execute(psw &state, memory &m)
+    class mul : public arithmetic_command
     {
-        
-        result_type res = (result_type)state.reg.integer[operation.op.r2] * state.reg.integer[operation.op.r3];
-        state.reg.integer[operation.op.r1] = res;
-        set_flags(state, res);
-        state.IP++;
-    }
-};
+    public:
+        void execute(psw &state, registers &reg, memory &m)
+        {
 
-class _div : public command
-{
-public:
-    void execute(psw &state, memory &m)
+            result_type res = (result_type)reg.integer[operation.op.r2] * reg.integer[operation.op.r3];
+            reg.integer[operation.op.r1] = res;
+            set_all_flags(reg, state, res);
+        }
+    };
+
+    class _div : public arithmetic_command
     {
-        result_type res = (result_type)state.reg.integer[operation.op.r2] / state.reg.integer[operation.op.r3];
-        state.reg.integer[operation.op.r1] = res;
-        set_flags(state, res);
-        state.IP++;
-    }
-};
+    public:
+        void execute(psw &state, registers &reg, memory &m)
+        {
+            result_type res = (result_type)reg.integer[operation.op.r2] / reg.integer[operation.op.r3];
+            reg.integer[operation.op.r1] = res;
+            set_all_flags(reg, state, res);
+        }
+    };
+} // namespace CMD
 
 #endif // MATH_HH

@@ -1,24 +1,18 @@
 #if !defined(MEMORY_HH)
 #define MEMORY_HH
-
-#include "word.hh"
-#include <cstddef>
 #include <string>
+#include "types.hh"
 
 class memory
 {
 private:
-    word* arr;
-    size_t size;
+    word arr[65536];
 public:
-    word &operator[](size_t idx);
+    word &operator[](word idx);
     memory(std::string filename);
-    memory(memory&& other);
-    memory(const memory&  other);
-    memory& operator=(memory&& other);
+    memory(const memory& other);
     memory& operator=(const memory& other);
     memory() = default;
-    ~memory();
 };
 
 #endif // MEMORY_HH

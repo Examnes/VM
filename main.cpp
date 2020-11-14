@@ -9,7 +9,8 @@ int main(int argc, char ** argv)
     size_t offset = stoi(argv[2]);
     memory m = memory(filename);
     processor p = processor(m);
-    p.run(offset);
+    p.set_ip(offset);
+    p.run();
     cout << "Iterpretation end" << endl;
     return 0;
 }

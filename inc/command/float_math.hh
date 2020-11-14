@@ -3,49 +3,45 @@
 
 #include "base_command.hh"
 
-//все арифметические операции над числами с плавающей точкой аналогичны операциям с обычными числами
-//только используется другое представление регистров floating
-class fadd : public command
+namespace CMD
 {
-public:
-    void execute(psw &state, memory &m)
+    //все арифметические операции над числами с плавающей точкой аналогичны операциям с обычными числами
+    //только используется другое представление регистров floating
+    class fadd : public common_command
     {
-        state.reg.floating[operation.op.r1] = state.reg.floating[operation.op.r2] + state.reg.floating[operation.op.r3];
-        state.IP++;
-        //флаги не ставятся, но обычно проверить что одно число больше или меньше другого можно 
-        //так же как с обычными числами
-        //потому что float сделан так, что если a > b то и float(a) > float(b);
-    }
-};
+    public:
+        void execute(psw &state, registers &reg, memory &m)
+        {
+            reg.floating[operation.op.r1] = reg.floating[operation.op.r2] + reg.floating[operation.op.r3];
+        }
+    };
 
-class fsub : public command
-{
-public:
-    void execute(psw &state, memory &m)
+    class fsub : public common_command
     {
-        state.reg.floating[operation.op.r1] = state.reg.floating[operation.op.r2] - state.reg.floating[operation.op.r3];
-        state.IP++;
-    }
-};
+    public:
+        void execute(psw &state, registers &reg, memory &m)
+        {
+            reg.floating[operation.op.r1] = reg.floating[operation.op.r2] - reg.floating[operation.op.r3];
+        }
+    };
 
-class fmul : public command
-{
-public:
-    void execute(psw &state, memory &m)
+    class fmul : public common_command
     {
-        state.reg.floating[operation.op.r1] = state.reg.floating[operation.op.r2] * state.reg.floating[operation.op.r3];
-        state.IP++;
-    }
-};
+    public:
+        void execute(psw &state, registers &reg, memory &m)
+        {
+            reg.floating[operation.op.r1] = reg.floating[operation.op.r2] * reg.floating[operation.op.r3];
+        }
+    };
 
-class fdiv : public command
-{
-public:
-    void execute(psw &state, memory &m)
+    class fdiv : public common_command
     {
-        state.reg.floating[operation.op.r1] = state.reg.floating[operation.op.r2] / state.reg.floating[operation.op.r3];
-        state.IP++;
-    }
-};
+    public:
+        void execute(psw &state, registers &reg, memory &m)
+        {
+            reg.floating[operation.op.r1] = reg.floating[operation.op.r2] / reg.floating[operation.op.r3];
+        }
+    };
+} // namespace CMD
 
 #endif // FLOAT_MATH_HH

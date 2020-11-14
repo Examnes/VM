@@ -3,102 +3,92 @@
 processor::processor(memory m)
 {
     state.IP = 0;
-    state.FLAGS = 0;
     this->m = m;
     initalize_commands();
 }
 
-/*инициализация команд,
-как нибудь бы это сократить,
-желательно чтобы размер масива был равен количеству команд,
-а то когда записываеш не туда,
-программа не подавая вида крашится*/
 void processor::initalize_commands()
 {
-    cmd[cmov] = new mov();
+    cmd[commands::add] = new CMD::add();
+    cmd[commands::sub] = new CMD::sub();
+    cmd[commands::_div] = new CMD::_div();
+    cmd[commands::mul] = new CMD::mul();
 
-    cmd[cadd] = new add();
-    cmd[csub] = new sub();
-    cmd[cdiv] = new _div();
-    cmd[cmul] = new mul();
+    cmd[commands::fadd] = new CMD::fadd();
+    cmd[commands::fsub] = new CMD::fsub();
+    cmd[commands::fdiv] = new CMD::fdiv();
+    cmd[commands::fmul] = new CMD::fmul();
 
-    cmd[cfadd] = new fadd();
-    cmd[cfsub] = new fsub();
-    cmd[cfdiv] = new fdiv();
-    cmd[cfmul] = new fmul();
-
-    cmd[cjmpd] = new jmpd();
-    cmd[cjmpr] = new jmpr();
-    cmd[cjmpi] = new jmpi();
+    cmd[commands::jmpd] = new CMD::jmpd();
+    cmd[commands::jmpr] = new CMD::jmpr();
+    cmd[commands::jmpi] = new CMD::jmpi();
 
     //ад дальше
-    cmd[cjad] = new jad();
-    cmd[cjar] = new jar();
-    cmd[cjai] = new jai();
+    cmd[commands::jad] = new CMD::conditional_jmpd([](psw f) { return !f.FLAGS.cf and !f.FLAGS.zf; });
+    cmd[commands::jar] = new CMD::conditional_jmpr([](psw f) { return !f.FLAGS.cf and !f.FLAGS.zf; });
+    cmd[commands::jai] = new CMD::conditional_jmpi([](psw f) { return !f.FLAGS.cf and !f.FLAGS.zf; });
 
-    cmd[cjaed] = new jaed();
-    cmd[cjaer] = new jaer();
-    cmd[cjaei] = new jaei();
+    cmd[commands::jaed] = new CMD::conditional_jmpd([](psw f) { return !f.FLAGS.cf; });
+    cmd[commands::jaer] = new CMD::conditional_jmpr([](psw f) { return !f.FLAGS.cf; });
+    cmd[commands::jaei] = new CMD::conditional_jmpi([](psw f) { return !f.FLAGS.cf; });
 
-    cmd[cjbd] = new jbd();
-    cmd[cjbr] = new jbr();
-    cmd[cjbi] = new jbi();
+    cmd[commands::jbd] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.cf; });
+    cmd[commands::jbr] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.cf; });
+    cmd[commands::jbi] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.cf; });
 
-    cmd[cjbed] = new jbed();
-    cmd[cjber] = new jber();
-    cmd[cjbei] = new jbei();
+    cmd[commands::jbed] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.cf and f.FLAGS.zf; });
+    cmd[commands::jber] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.cf and f.FLAGS.zf; });
+    cmd[commands::jbei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.cf and f.FLAGS.zf; });
 
-    cmd[cjed] = new jed();
-    cmd[cjer] = new jer();
-    cmd[cjei] = new jei();
+    cmd[commands::jed] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.zf; });
+    cmd[commands::jer] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.zf; });
+    cmd[commands::jei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.zf; });
 
-    cmd[cjgd] = new jgd();
-    cmd[cjgr] = new jgr();
-    cmd[cjgi] = new jgi();
+    cmd[commands::jgd] = new CMD::conditional_jmpd([](psw f) { return !f.FLAGS.zf and (f.FLAGS.sf == f.FLAGS.of); });
+    cmd[commands::jgr] = new CMD::conditional_jmpr([](psw f) { return !f.FLAGS.zf and (f.FLAGS.sf == f.FLAGS.of); });
+    cmd[commands::jgi] = new CMD::conditional_jmpi([](psw f) { return !f.FLAGS.zf and (f.FLAGS.sf == f.FLAGS.of); });
 
-    cmd[cjged] = new jged();
-    cmd[cjger] = new jger();
-    cmd[cjgei] = new jgei();
+    cmd[commands::jged] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.sf == f.FLAGS.of; });
+    cmd[commands::jger] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.sf == f.FLAGS.of; });
+    cmd[commands::jgei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.sf == f.FLAGS.of; });
 
-    cmd[cjld] = new jld();
-    cmd[cjlr] = new jlr();
-    cmd[cjli] = new jli();
+    cmd[commands::jld] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.sf != f.FLAGS.of; });
+    cmd[commands::jlr] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.sf != f.FLAGS.of; });
+    cmd[commands::jli] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.sf != f.FLAGS.of; });
 
-    cmd[cjled] = new jled();
-    cmd[cjler] = new jler();
-    cmd[cjlei] = new jlei();
+    cmd[commands::jled] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.zf and f.FLAGS.sf != f.FLAGS.of; });
+    cmd[commands::jler] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.zf and f.FLAGS.sf != f.FLAGS.of; });
+    cmd[commands::jlei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.zf and f.FLAGS.sf != f.FLAGS.of; });
 
-    cmd[ccall] = new call();
-    cmd[cret] = new ret();
-    cmd[ccmp] = new cmp();
+    cmd[commands::call] = new CMD::call();
+    cmd[commands::ret] = new CMD::ret();
+    cmd[commands::cmp] = new CMD::cmp();
 
-    cmd[c_in] = new in();
-    cmd[c_out] = new out();
-    cmd[c_movd] = new movd();
-    cmd[chalt] = new halt();
+    cmd[commands::in] = new CMD::in();
+    cmd[commands::out] = new CMD::out();
+    cmd[commands::movd] = new CMD::movd();
+    cmd[commands::halt] = new CMD::halt();
 }
 
-void processor::process()
+void processor::set_ip(dword address)
 {
-    //опкод получется если сдвинуть команду на 9 бит
-    //то есть получить верхние 7 бит
-    word op = command::get_opcode(m[state.IP]);
-    command *curcommand = cmd[op];
-    //каждый раз когда мы считываем команды нужно обновить байты
-    //команды, под данным опкодом, это конструктор.
-    curcommand->init(m[state.IP], m[state.IP + 1]);
-    //мы передаем в команду состояние процессора и памяти
-    //могли бы мы передать туда сам процессор, но это не очень хорошо
-    //потому что тогда будут циклические зависимости
-    curcommand->execute(state, m);
+    state.IP = address;
 }
 
-void processor::run(dword start_address)
+void processor::reset()
 {
-    state.IP = start_address;
-    //возможно, это стоит сделать флагом, чтобы правильно было
-    while (!state.stop)
+    state = psw();
+    reg = registers();
+}
+
+void processor::run()
+{
+    while (!state.FLAGS.stop)
     {
-        process();
+        word op = get_opcode(m[state.IP]);
+        CMD::command *curcommand = cmd[op];
+        curcommand->init(m[state.IP], m[state.IP + 1]);
+        curcommand->execute(state, reg, m);
+        state.IP += curcommand->get_size();
     }
 }
