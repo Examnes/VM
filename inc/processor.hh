@@ -5,6 +5,7 @@
 #include "memory.hh"
 #include "psw.hh"
 #include "cmd.gch"
+#include <array>
 
 class processor
 {
@@ -13,7 +14,7 @@ private:
     psw state;
     CMD::command *cmd[46];
     void initalize_commands();
-    registers reg;
+    std::array<regtype,8> reg;
     static word get_opcode(word first)
     {
         return (first >> 9);

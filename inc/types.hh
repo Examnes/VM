@@ -5,11 +5,12 @@
 using word = uint16_t;
 using dword = uint32_t;
 
-union registers
+union regtype
 {
-    dword integer[8] = {0};
-    int32_t signed_integer[8];
-    float floating[8];
+    word part[2];
+    float floating;
+    dword integer;
+    int32_t signed_integer;
 };
 
 #endif // TYPES_HH

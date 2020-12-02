@@ -1,10 +1,12 @@
 #include "processor.hh"
+#include <memory.h>
 
 processor::processor(memory m)
 {
     state.IP = 0;
     this->m = m;
     initalize_commands();
+    memset(&state,0,sizeof(state));
 }
 
 void processor::initalize_commands()
@@ -77,18 +79,22 @@ void processor::set_ip(dword address)
 
 void processor::reset()
 {
-    state = psw();
-    reg = registers();
+    memset(&state,0,sizeof(state));
+    state.IP = 0;
 }
 
 void processor::run()
 {
-    while (!state.FLAGS.stop)
+    while (true)
     {
         word op = get_opcode(m[state.IP]);
+        if(op == halt)
+            break;
         CMD::command *curcommand = cmd[op];
         curcommand->init(m[state.IP], m[state.IP + 1]);
         curcommand->execute(state, reg, m);
-        state.IP += curcommand->get_size();
+        if(!state.FLAGS.ipcf)
+            state.IP += curcommand->get_size();
+        state.FLAGS.ipcf = false;
     }
 }

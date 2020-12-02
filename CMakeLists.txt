@@ -6,6 +6,7 @@ set(SRC ${PROJECT_SOURCE_DIR}/main.cpp
         ${PROJECT_SOURCE_DIR}/src/processor.cpp
         ${PROJECT_SOURCE_DIR}/src/memory.cpp
         ${PROJECT_SOURCE_DIR}/inc/cmd.gch
+        ${PROJECT_SOURCE_DIR}/src/loader.cpp
     )
 
 add_executable(${CMAKE_PROJECT_NAME} ${SRC})

@@ -12,7 +12,7 @@ struct psw
         word sf : 1;
         word of : 1;
         word cf : 1;
-        word stop : 1;
+        word ipcf: 1;
     } FLAGS;
 };
 

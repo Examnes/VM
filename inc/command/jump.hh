@@ -5,7 +5,7 @@
 #include <functional>
 namespace CMD
 {
-    class jmpd : public changing_ip_command
+    class jmpd : public extended_command
     {
     private:
         enum based : word
@@ -15,7 +15,7 @@ namespace CMD
         };
 
     public:
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
             switch (operation.op.r2)
             {
@@ -23,31 +23,34 @@ namespace CMD
                 state.IP = operation.op.address;
                 break;
             case based::yes:
-                state.IP = operation.op.address + reg.integer[operation.op.r3];
+                state.IP = operation.op.address + reg[operation.op.r3].integer;
                 break;
             default:
                 break;
             }
+            state.FLAGS.ipcf = true;
         }
         DEF_AS_BASE(jmpd);
     };
 
-    class jmpr : public changing_ip_command
+    class jmpr : public common_command
     {
     public:
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
-            state.IP += (int8_t)(operation.parts[0] & 0xFF);
+            state.IP +=  (int8_t)(operation.parts[0] & 0xFF) + this->get_size();
+            state.FLAGS.ipcf = true;
         }
         DEF_AS_BASE(jmpr);
     };
 
-    class jmpi : public changing_ip_command
+    class jmpi : public common_command
     {
     public:
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
-            state.IP = reg.integer[operation.op.r1];
+            state.IP = reg[operation.op.r1].integer;
+            state.FLAGS.ipcf = true;
         }
         DEF_AS_BASE(jmpi);
     };
@@ -62,7 +65,7 @@ namespace CMD
         {
             this->pred = pred;
         }
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
             if (pred(state))
                 base::execute(state, reg, m);
@@ -79,7 +82,7 @@ namespace CMD
         {
             this->pred = pred;
         }
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
             if (pred(state))
                 base::execute(state, reg, m);
@@ -96,7 +99,7 @@ namespace CMD
         {
             this->pred = pred;
         }
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
             if (pred(state))
                 base::execute(state, reg, m);

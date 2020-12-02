@@ -6,6 +6,7 @@
 #include "types.hh"
 #include "psw.hh"
 #include "memory.hh"
+#include <array>
 
 using result_type = uint64_t;
 #define SIGN_BIT(x) (x >> (sizeof(x) * 8 - 1))
@@ -30,13 +31,13 @@ namespace CMD
         } operation;
 
     public:
-        void init(word first, word second = 0)
+        void init(word first, word second)
         {
             operation.parts[0] = first;
             operation.parts[1] = second;
         }
         command() = default;
-        virtual void execute(psw &state, registers &reg, memory &m) = 0;
+        virtual void execute(psw &state, std::array<regtype, 8> &reg, memory &m) = 0;
         virtual word get_size() = 0;
     };
 
@@ -55,15 +56,6 @@ namespace CMD
         word get_size()
         {
             return 2;
-        }
-    };
-
-    class changing_ip_command : public command
-    {
-    public:
-        word get_size()
-        {
-            return 0;
         }
     };
 } // namespace CMD

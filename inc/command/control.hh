@@ -10,44 +10,45 @@ namespace CMD
     class call : public jmpd
     {
     public:
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
-            reg.integer[operation.op.r1] = state.IP + 1;
+            reg[operation.op.r1].integer = state.IP + 1;
             base::execute(state, reg, m);
         }
     };
     //потом этот адрес возврата нужно использовать в команде ret
-    class ret : public changing_ip_command
+    class ret : public common_command
     {
     public:
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
-            state.IP = reg.integer[operation.op.r1];
+            state.IP = reg[operation.op.r1].integer;
+            state.FLAGS.ipcf = true;
         }
     };
     //cmp делает то же самое что и вычитание, только не сохраняет рпезультат, только флаги ставит.
     class cmp : public sub
     {
     public:
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
             //так как sub все таки сохраняет результат,
             //желательно чтобы он всегда сохранялся в одно место.
             operation.op.r1 = 0b010;
-            dword temp = reg.integer[operation.op.r1];
+            dword temp = reg[operation.op.r1].integer;
             sub::execute(state, reg, m);
             //но после выполненния нужно вернуть назад прошлое значение этого регистра
-            reg.integer[operation.op.r1] = temp;
+            reg[operation.op.r1].integer = temp;
         }
     };
-    //эта команда должна быть в конце программы, она устанавливает флаг остановки
-    //когда он будет установлен интерпретация закончится.
+    //эта команда должна быть в конце программы
+    //интерпретация закончится.
     class halt : public common_command
     {
     public:
-        virtual void execute(psw &state, registers &reg, memory &m)
+        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
         {
-            state.FLAGS.stop = true;
+            //ничего не нужно делать
         }
     };
 } // namespace CMD
