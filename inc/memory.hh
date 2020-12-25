@@ -1,6 +1,5 @@
 #if !defined(MEMORY_HH)
 #define MEMORY_HH
-#include <string>
 #include "types.hh"
 
 class memory
@@ -8,7 +7,7 @@ class memory
 private:
     word arr[65536];
 public:
-    word &operator[](word idx);
+    word &operator[](word address);
     memory() = default;
 };
 

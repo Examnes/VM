@@ -1,12 +1,6 @@
-#include <stdexcept>
-#include <vector>
-#include <fstream>
-#include <string>
-#include <iostream>
 #include "memory.hh"
 
-
-word &memory::operator[](word idx)
+word &memory::operator[](word address)
 {
-    return arr[idx];
+    return arr[address];
 } 

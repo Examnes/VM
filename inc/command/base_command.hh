@@ -29,7 +29,6 @@ namespace CMD
             } op;
             word parts[2];
         } operation;
-
     public:
         void init(word first, word second)
         {

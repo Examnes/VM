@@ -6,13 +6,26 @@
 
 using namespace std;
 
+union command_type
+{
+    word w;
+    struct
+    {
+        word r1 : 3;
+        word r2 : 3;
+        word r3 : 3;
+        word op : 7;
+    } c;
+};
+
 word load_memory(memory& m,std::string filename)
 {
     ifstream file = ifstream(filename, std::ios::in | std::ios::binary);
-    word start;
+    word start,offset;
     string line; 
     getline(file, line);
-    start = stoi(line);
+    stringstream ss = stringstream(line);
+    ss >> start >> offset;
     word ptr = 0;
     int line_counter = 0;
     while (getline(file, line)) 
@@ -26,12 +39,13 @@ word load_memory(memory& m,std::string filename)
             ss >> cmdtype;
             uint16_t r1,r2,r3,op;
             word extend;
+            command_type first;
             ss >> op >> r1 >> r2 >> r3;
-            word first = r3;
-            first |= r2 << 3;
-            first |= r1 << 6;
-            first |= op << 9;
-            m[ptr++]= first;
+            first.c.op = op;
+            first.c.r1 = r1;
+            first.c.r2 = r2;
+            first.c.r3 = r3;
+            m[ptr++]= first.w;
             if (cmdtype == "extended")
             {
                 ss >> extend;
@@ -43,15 +57,15 @@ word load_memory(memory& m,std::string filename)
             string datatype;
             ss >> datatype;
             regtype d;
-            if (datatype == "int")
+            if (datatype == "i")
             {
                 ss >> d.signed_integer;
             }
-            else if (datatype == "uint")
+            else if (datatype == "u")
             {
                 ss >> d.integer;
             }
-            else if (datatype == "float")
+            else if (datatype == "f")
             {
                 ss >> d.floating;
             }
