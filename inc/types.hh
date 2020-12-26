@@ -13,4 +13,30 @@ union regtype
     int32_t signed_integer;
 };
 
+union operation_type
+{
+    struct
+    {
+        word r3 : 3;
+        word r2 : 3;
+        word r1 : 3;
+        word op : 7;
+        word address;
+    } op;
+    word parts[2];
+};
+
+struct psw
+{
+    word IP {};
+    struct
+    {
+        word zf : 1;
+        word sf : 1;
+        word of : 1;
+        word cf : 1;
+        word ipcf: 1;
+    } FLAGS {};
+};
+
 #endif // TYPES_HH

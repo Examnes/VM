@@ -60,12 +60,12 @@ namespace CMD
             }
         }
 
-        void set_all_flags(const std::array<regtype,8> &reg, psw &state, result_type res)
+        void set_all_flags(processor_state& p, result_type res)
         {
-            set_cf(state, res);
-            set_of(reg, state, res);
-            set_sf(reg, state, res);
-            set_zf(state, res);
+            set_cf(p.state, res);
+            set_of(p.reg, p.state, res);
+            set_sf(p.reg, p.state, res);
+            set_zf(p.state, res);
         }
     };
 } // namespace CMD

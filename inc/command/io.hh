@@ -10,10 +10,9 @@ namespace CMD
     class out : public common_command
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            //а без этого почему то не работает, хотя должно
-            std::string out_string = std::to_string(reg[operation.op.r1].integer);
+            std::string out_string = std::to_string(p.reg[operation.op.r1].integer);
             std::cout << out_string << std::endl;
         }
     };
@@ -21,9 +20,9 @@ namespace CMD
     class in : public common_command
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            std::cin >> reg[operation.op.r1].integer;
+            std::cin >> p.reg[operation.op.r1].integer;
         }
     };
 } // namespace CMD

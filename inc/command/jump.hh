@@ -3,72 +3,70 @@
 
 #include "base_command.hh"
 #include <functional>
+
 namespace CMD
 {
     class jmpd : public extended_command
     {
     private:
-        enum based : word
+        enum based : word //используется ли базовый адрес
         {
             yes = 1,
             no = 3
         };
 
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
             switch (operation.op.r2)
             {
             case based::no:
-                state.IP = operation.op.address;
+                p.state.IP = operation.op.address;
                 break;
             case based::yes:
-                state.IP = operation.op.address + reg[operation.op.r3].integer;
+                p.state.IP = operation.op.address + p.reg[operation.op.r3].integer;
                 break;
             default:
                 break;
             }
-            state.FLAGS.ipcf = true;
+            p.state.FLAGS.ipcf = true;
         }
-        DEF_AS_BASE(jmpd);
     };
 
     class jmpr : public common_command
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            state.IP +=  (int8_t)(operation.parts[0] & 0xFF) + this->get_size();
-            state.FLAGS.ipcf = true;
+            p.state.IP +=  (int8_t)(operation.parts[0] & 0xFF) + this->get_size();
+            p.state.FLAGS.ipcf = true;
         }
-        DEF_AS_BASE(jmpr);
     };
 
     class jmpi : public common_command
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            state.IP = reg[operation.op.r1].integer;
-            state.FLAGS.ipcf = true;
+            p.state.IP = p.reg[operation.op.r1].integer;
+            p.state.FLAGS.ipcf = true;
         }
-        DEF_AS_BASE(jmpi);
     };
 
     class conditional_jmpi : public jmpi
     {
     private:
+        //в psw есть флаги - этот предикат определяет нужно совершать прыжок или нет на основании этих флагов.
         std::function<bool(psw)> pred;
-
     public:
         conditional_jmpi(std::function<bool(psw)> pred)
         {
             this->pred = pred;
         }
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            if (pred(state))
-                base::execute(state, reg, m);
+            if (pred(p.state))
+                jmpi::execute(p);
         }
     };
 
@@ -82,10 +80,10 @@ namespace CMD
         {
             this->pred = pred;
         }
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            if (pred(state))
-                base::execute(state, reg, m);
+            if (pred(p.state))
+                jmpr::execute(p);
         }
     };
 
@@ -99,10 +97,10 @@ namespace CMD
         {
             this->pred = pred;
         }
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            if (pred(state))
-                base::execute(state, reg, m);
+            if (pred(p.state))
+                jmpd::execute(p);
         }
     };
 } // namespace CMD

@@ -8,36 +8,36 @@ namespace CMD
     class fadd : public common_command
     {
     public:
-        void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        void execute(processor_state& p)
         {
-            reg[operation.op.r1].floating = reg[operation.op.r2].floating + reg[operation.op.r3].floating;
+            p.reg[operation.op.r1].floating = p.reg[operation.op.r2].floating + p.reg[operation.op.r3].floating;
         }
     };
 
     class fsub : public common_command
     {
     public:
-        void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        void execute(processor_state& p)
         {
-            reg[operation.op.r1].floating = reg[operation.op.r2].floating - reg[operation.op.r3].floating;
+            p.reg[operation.op.r1].floating = p.reg[operation.op.r2].floating - p.reg[operation.op.r3].floating;
         }
     };
 
     class fmul : public common_command
     {
     public:
-        void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        void execute(processor_state& p)
         {
-            reg[operation.op.r1].floating = reg[operation.op.r2].floating * reg[operation.op.r3].floating;
+            p.reg[operation.op.r1].floating = p.reg[operation.op.r2].floating * p.reg[operation.op.r3].floating;
         }
     };
 
     class fdiv : public common_command
     {
     public:
-        void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        void execute(processor_state& p)
         {
-            reg[operation.op.r1].floating = reg[operation.op.r2].floating / reg[operation.op.r3].floating;
+            p.reg[operation.op.r1].floating = p.reg[operation.op.r2].floating / p.reg[operation.op.r3].floating;
         }
     };
 } // namespace CMD

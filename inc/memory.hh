@@ -9,6 +9,8 @@ private:
 public:
     word &operator[](word address);
     memory() = default;
+    memory(memory&) = delete;
+    memory(memory&&) = delete;
 };
 
 #endif // MEMORY_HH

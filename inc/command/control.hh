@@ -10,35 +10,35 @@ namespace CMD
     class call : public jmpd
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            reg[operation.op.r1].integer = state.IP + 1;
-            base::execute(state, reg, m);
+            p.reg[operation.op.r1].integer = p.state.IP + 1;
+            base::execute(p);
         }
     };
     //потом этот адрес возврата нужно использовать в команде ret
     class ret : public common_command
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            state.IP = reg[operation.op.r1].integer;
-            state.FLAGS.ipcf = true;
+            p.state.IP = p.reg[operation.op.r1].integer;
+            p.state.FLAGS.ipcf = true;
         }
     };
     //cmp делает то же самое что и вычитание, только не сохраняет рпезультат, только флаги ставит.
     class cmp : public sub
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
             //так как sub все таки сохраняет результат,
             //желательно чтобы он всегда сохранялся в одно место.
             operation.op.r1 = 0b010;
-            dword temp = reg[operation.op.r1].integer;
-            sub::execute(state, reg, m);
+            dword temp = p.reg[operation.op.r1].integer;
+            sub::execute(p);
             //но после выполненния нужно вернуть назад прошлое значение этого регистра
-            reg[operation.op.r1].integer = temp;
+            p.reg[operation.op.r1].integer = temp;
         }
     };
     //эта команда должна быть в конце программы
@@ -46,9 +46,9 @@ namespace CMD
     class halt : public common_command
     {
     public:
-        virtual void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        virtual void execute(processor_state& p)
         {
-            //ничего не нужно делать
+            p.stop = true;
         }
     };
 } // namespace CMD

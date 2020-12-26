@@ -5,50 +5,50 @@
 
 namespace CMD
 {
-    //это аналог rm
+    //это направление операции mov
     enum dir : word
     {
-        rr = 0,
-        rm = 1,
+        rr = 0, //регистр - регистр
+        rm = 1, //регистр - память
         rbm = 3,
-        mr = 5,
-        bmr = 7,
-        la = 2,
-        lba = 6
+        mr = 5, // память - регистр
+        bmr = 7,//базовый адрес + адрес = пямять - регистр
+        la = 2,//загрузить адрес
+        lba = 6//загрузить адрес + базовый адрес
     };
 
     //это мув сразу двух слов, потому что регистры занимают 2 слова
     class movd : public command
     {
     public:
-        void execute(psw &state, std::array<regtype,8> &reg, memory &m)
+        void execute(processor_state& p)
         {
             switch (operation.op.r2)
             {
             case dir::rr:
-                reg[operation.op.r1].integer = reg[operation.op.r3].integer;
+                p.reg[operation.op.r1].integer = p.reg[operation.op.r3].integer;
                 break;
             case dir::rm:
-                m[operation.op.address] = reg[operation.op.r1].part[0];
-                m[operation.op.address + 1] = reg[operation.op.r1].part[1];
+                p.m[operation.op.address] = p.reg[operation.op.r1].part[0];
+                p.m[operation.op.address + 1] = p.reg[operation.op.r1].part[1];
                 break;
             case dir::mr:
-                reg[operation.op.r1].part[0] = m[operation.op.address];
-                reg[operation.op.r1].part[1] = m[operation.op.address + 1];
+                p.reg[operation.op.r1].part[0] = p.m[operation.op.address];
+                p.reg[operation.op.r1].part[1] = p.m[operation.op.address + 1];
                 break;
             case dir::bmr:
-                reg[operation.op.r1].part[0] = m[reg[operation.op.r3].signed_integer + operation.op.address];
-                reg[operation.op.r1].part[1] = m[reg[operation.op.r3].signed_integer + operation.op.address + 1];
+                p.reg[operation.op.r1].part[0] = p.m[p.reg[operation.op.r3].signed_integer + operation.op.address];
+                p.reg[operation.op.r1].part[1] = p.m[p.reg[operation.op.r3].signed_integer + operation.op.address + 1];
                 break;
             case dir::rbm:
-                m[reg[operation.op.r3].signed_integer + operation.op.address] = reg[operation.op.r1].part[0];
-                m[reg[operation.op.r3].signed_integer + operation.op.address + 1] = reg[operation.op.r1].part[1];
+                p.m[p.reg[operation.op.r3].signed_integer + operation.op.address] = p.reg[operation.op.r1].part[0];
+                p.m[p.reg[operation.op.r3].signed_integer + operation.op.address + 1] = p.reg[operation.op.r1].part[1];
                 break;
             case dir::la:
-                reg[operation.op.r1].integer = operation.op.address;
+                p.reg[operation.op.r1].integer = operation.op.address;
                 break;
             case dir::lba:
-                reg[operation.op.r1].integer = reg[operation.op.r3].signed_integer + operation.op.address;
+                p.reg[operation.op.r1].integer = p.reg[operation.op.r3].signed_integer + operation.op.address;
                 break;
             default:
                 break;
