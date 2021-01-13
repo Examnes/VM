@@ -7,13 +7,14 @@
 
 namespace CMD
 {
-    class call : public jmpd
+    class call : public jump
     {
     public:
         virtual void execute(processor_state& p)
         {
             p.reg[operation.op.r1].integer = p.state.IP + 1;
-            base::execute(p);
+            operation.op.r1 = 0b100;
+            jump::execute(p);
         }
     };
     //потом этот адрес возврата нужно использовать в команде ret

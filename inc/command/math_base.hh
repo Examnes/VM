@@ -20,11 +20,11 @@ namespace CMD
             }
         }
 
-        void set_of(const std::array<regtype,8> &reg, psw &state, result_type res)
+        void set_of(const std::array<regtype,8> &reg, psw &state)
         {
-            bool op1sign = SIGN_BIT(reg[operation.op.r2].integer);
-            bool op2sign = SIGN_BIT(reg[operation.op.r3].integer);
-            bool ressign = SIGN_BIT(reg[operation.op.r1].integer);
+            bool op1sign = reg[operation.op.r2].signed_integer < 0;
+            bool op2sign = reg[operation.op.r3].signed_integer < 0;
+            bool ressign = reg[operation.op.r1].signed_integer < 0;
             if ((op1sign and op2sign and not ressign) or
                 (not op1sign and not op2sign and ressign))
             {
@@ -36,9 +36,9 @@ namespace CMD
             }
         }
 
-        void set_sf(const std::array<regtype,8> &reg, psw &state, result_type res)
+        void set_sf(const std::array<regtype,8> &reg, psw &state)
         {
-            if (SIGN_BIT(reg[operation.op.r1].integer))
+            if (reg[operation.op.r1].signed_integer < 0)
             {
                 state.FLAGS.sf = true;
             }
@@ -63,8 +63,8 @@ namespace CMD
         void set_all_flags(processor_state& p, result_type res)
         {
             set_cf(p.state, res);
-            set_of(p.reg, p.state, res);
-            set_sf(p.reg, p.state, res);
+            set_of(p.reg, p.state);
+            set_sf(p.reg, p.state);
             set_zf(p.state, res);
         }
     };

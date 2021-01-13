@@ -2,7 +2,7 @@
 #include <memory.h>
 #include "loader.hh"
 
-processor::processor(std::string filename)
+processor::processor(std::string filename):s()
 {
     s.state.IP = 0;
     initalize_commands();
@@ -23,45 +23,25 @@ void processor::initalize_commands()
     cmd[commands::fdiv] = new CMD::fdiv();
     cmd[commands::fmul] = new CMD::fmul();
 
-    cmd[commands::jmpd] = new CMD::jmpd();
-    cmd[commands::jmpr] = new CMD::jmpr();
-    cmd[commands::jmpi] = new CMD::jmpi();
+    cmd[commands::jmp] = new CMD::jump();
 
-    cmd[commands::jad] = new CMD::conditional_jmpd([](psw f) { return !f.FLAGS.cf and !f.FLAGS.zf; }); //ja = !cf & !zf
-    cmd[commands::jar] = new CMD::conditional_jmpr([](psw f) { return !f.FLAGS.cf and !f.FLAGS.zf; });
-    cmd[commands::jai] = new CMD::conditional_jmpi([](psw f) { return !f.FLAGS.cf and !f.FLAGS.zf; });
+    cmd[commands::ja] = new CMD::conditional_jump([](psw f) { return !f.FLAGS.cf and !f.FLAGS.zf; }); //ja = !cf & !zf
 
-    cmd[commands::jaed] = new CMD::conditional_jmpd([](psw f) { return !f.FLAGS.cf; }); //jae = !cf
-    cmd[commands::jaer] = new CMD::conditional_jmpr([](psw f) { return !f.FLAGS.cf; });
-    cmd[commands::jaei] = new CMD::conditional_jmpi([](psw f) { return !f.FLAGS.cf; });
+    cmd[commands::jae] = new CMD::conditional_jump([](psw f) { return !f.FLAGS.cf; }); //jae = !cf
 
-    cmd[commands::jbd] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.cf; }); //jb = cf
-    cmd[commands::jbr] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.cf; });
-    cmd[commands::jbi] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.cf; });
+    cmd[commands::jb] = new CMD::conditional_jump([](psw f) { return f.FLAGS.cf; }); //jb = cf
 
-    cmd[commands::jbed] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.cf and f.FLAGS.zf; }); //jbe = cf & zf
-    cmd[commands::jber] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.cf and f.FLAGS.zf; });
-    cmd[commands::jbei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.cf and f.FLAGS.zf; });
+    cmd[commands::jbe] = new CMD::conditional_jump([](psw f) { return f.FLAGS.cf and f.FLAGS.zf; }); //jbe = cf & zf
 
-    cmd[commands::jed] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.zf; }); //je = zf
-    cmd[commands::jer] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.zf; });
-    cmd[commands::jei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.zf; });
+    cmd[commands::je] = new CMD::conditional_jump([](psw f) { return f.FLAGS.zf; }); //je = zf
 
-    cmd[commands::jgd] = new CMD::conditional_jmpd([](psw f) { return !f.FLAGS.zf and (f.FLAGS.sf == f.FLAGS.of); }); //jg = sf == of & !zf
-    cmd[commands::jgr] = new CMD::conditional_jmpr([](psw f) { return !f.FLAGS.zf and (f.FLAGS.sf == f.FLAGS.of); });
-    cmd[commands::jgi] = new CMD::conditional_jmpi([](psw f) { return !f.FLAGS.zf and (f.FLAGS.sf == f.FLAGS.of); });
+    cmd[commands::jg] = new CMD::conditional_jump([](psw f) { return !f.FLAGS.zf and (f.FLAGS.sf == f.FLAGS.of); }); //jg = sf == of & !zf
+    
+    cmd[commands::jge] = new CMD::conditional_jump([](psw f) { return f.FLAGS.sf == f.FLAGS.of; }); //jge = sf == of
 
-    cmd[commands::jged] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.sf == f.FLAGS.of; }); //jge = sf == of
-    cmd[commands::jger] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.sf == f.FLAGS.of; });
-    cmd[commands::jgei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.sf == f.FLAGS.of; });
+    cmd[commands::jl] = new CMD::conditional_jump([](psw f) { return f.FLAGS.sf != f.FLAGS.of; }); //jl = sf != of
 
-    cmd[commands::jld] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.sf != f.FLAGS.of; }); //jl = sf != of
-    cmd[commands::jlr] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.sf != f.FLAGS.of; });
-    cmd[commands::jli] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.sf != f.FLAGS.of; });
-
-    cmd[commands::jled] = new CMD::conditional_jmpd([](psw f) { return f.FLAGS.zf and f.FLAGS.sf != f.FLAGS.of; });  //jle = sf != of & zf
-    cmd[commands::jler] = new CMD::conditional_jmpr([](psw f) { return f.FLAGS.zf and f.FLAGS.sf != f.FLAGS.of; });
-    cmd[commands::jlei] = new CMD::conditional_jmpi([](psw f) { return f.FLAGS.zf and f.FLAGS.sf != f.FLAGS.of; });
+    cmd[commands::jle] = new CMD::conditional_jump([](psw f) { return f.FLAGS.zf and f.FLAGS.sf != f.FLAGS.of; });  //jle = sf != of & zf
 
     cmd[commands::call] = new CMD::call();
     cmd[commands::ret] = new CMD::ret();
@@ -71,6 +51,11 @@ void processor::initalize_commands()
     cmd[commands::out] = new CMD::out();
     cmd[commands::movd] = new CMD::movd();
     cmd[commands::halt] = new CMD::halt();
+    cmd[commands::fcomp] = new CMD::fcomp();
+    cmd[commands::bor] = new CMD::bor();
+    cmd[commands::bxor] = new CMD::bxor();
+    cmd[commands::band] = new CMD::band();
+    cmd[commands::bnot] = new CMD::bnot();
 }
 
 void processor::set_ip(word address)

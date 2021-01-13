@@ -1,6 +1,7 @@
 #if !defined(MEMORY_HH)
 #define MEMORY_HH
 #include "types.hh"
+#include <iostream>
 
 class memory
 {
@@ -9,8 +10,8 @@ private:
 public:
     word &operator[](word address);
     memory() = default;
-    memory(memory&) = delete;
-    memory(memory&&) = delete;
+    memory(const memory& o) = delete;
+    memory(memory&& o) = delete;
 };
 
 #endif // MEMORY_HH

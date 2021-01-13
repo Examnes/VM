@@ -2,21 +2,10 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 #include "types.hh"
 
 using namespace std;
-
-union command_type
-{
-    word w;
-    struct
-    {
-        word r1 : 3;
-        word r2 : 3;
-        word r3 : 3;
-        word op : 7;
-    } c;
-};
 
 word load_memory(memory& m,std::string filename)
 {
@@ -38,18 +27,17 @@ word load_memory(memory& m,std::string filename)
             string cmdtype;
             ss >> cmdtype; //у операции есть 2 типа обычная и расширенная
             uint16_t r1,r2,r3,op; 
-            word extend;
-            command_type first;
+            operation_type first;
             ss >> op >> r1 >> r2 >> r3; //следующие 4 слова это опкод и операнды 1 2 и 3
-            first.c.op = op;
-            first.c.r1 = r1;
-            first.c.r2 = r2;
-            first.c.r3 = r3; 
-            m[ptr++]= first.w;
+            first.op.op = op;
+            first.op.r1 = r1;
+            first.op.r2 = r2;
+            first.op.r3 = r3; 
+            m[ptr++]= first.parts[0];
             if (cmdtype == "e")
             {
-                ss >> extend; //если операция расширенная то есть еще 5 слово которое означает адрес.
-                m[ptr++] = extend;
+                ss >> first.op.address; //если операция расширенная то есть еще 5 слово которое означает адрес.
+                m[ptr++] = first.parts[1];
             }
         }
         else if(type == "d") //еще есть тип команды: данные
@@ -74,7 +62,7 @@ word load_memory(memory& m,std::string filename)
         }
         if (ss.fail())
         {
-            throw "invalid sintax on line: " + to_string(line_counter);
+            throw logic_error("invalid sintax on line: " + to_string(line_counter));
         }
         line_counter++;
     }

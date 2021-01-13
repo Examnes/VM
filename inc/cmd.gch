@@ -8,7 +8,8 @@
 #include "command/jump.hh"
 #include "command/math.hh"
 #include "command/mov.hh" 
+#include "command/bin.hh" 
 
-//pch файлы, чтобы меньше инклюов писать
+//pch файлы, чтобы меньше инклюдов писать
 
 #endif // CMD_PCH

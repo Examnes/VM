@@ -7,8 +7,15 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     std::string filename = argv[1];
-    processor p = processor(filename);
-    p.run();
-    cout << "Iterpretation end" << endl;
+    try
+    {
+        processor p(filename);
+        p.run();
+        cout << "Iterpretation end" << endl;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
     return 0;
 }

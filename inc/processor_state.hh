@@ -3,8 +3,9 @@
 
 #include "types.hh"
 #include "memory.hh"
-
-struct processor_state
+//чтобы избежать циклических зависимостей 
+//выделили общую для processor и command часть в отдельный класс
+struct processor_state 
 {
     bool stop;
     memory m;
